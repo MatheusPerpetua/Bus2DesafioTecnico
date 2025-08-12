@@ -10,17 +10,29 @@ Pipeline ETL local que:
 ## Estrutura do repositório
 
 Bus2/
+
 ├─ arquivos_teste_dados_bus2/ # CSVs brutos
+
 ├─ config/
+
 │ └─ config.py # Engine SQLAlchemy + pymysql (usa .env)
+
 ├─ outputs/ # arquivos gerados
+
 ├─ requirements/requirements.txt
+
 ├─ src/
+
 │ ├─ extract.py # leitura dos CSVs
+
 │ ├─ transform.py # regras de negócio / agregações
+
 │ ├─ report.py # grava parquet e gera PDF
+
 │ ├─ inserirbanco.py # grava DataFrames no MySQL (expondo save_to_db)
+
 │ └─ main.py # orquestrador do pipeline
+
 ├─ README.md
 
 ## Pré-requisitos
