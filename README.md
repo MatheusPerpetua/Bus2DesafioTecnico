@@ -1,4 +1,4 @@
-# Bus2 - Desafio Técnico (Matheus Vieira Perpetua)
+# Bus2 - Desafio Técnico
 
 ## Resumo
 Pipeline ETL local que extrai CSVs (empregados, produtos, vendas), transforma os dados, gera `resumo-vendas.parquet` e `relatorio-final.pdf` e carrega tabelas no MySQL.
