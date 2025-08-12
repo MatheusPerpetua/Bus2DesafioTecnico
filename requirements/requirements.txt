@@ -1,0 +1,10 @@
+python-dotenv
+pandas
+pymysql
+sqlalchemy
+pyarrow
+matplotlib
+seaborn
+openpyxl
+xlsxwriter
+pdfplumber
