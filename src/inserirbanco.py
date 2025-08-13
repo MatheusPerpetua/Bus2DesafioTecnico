@@ -7,13 +7,7 @@ import sys
 # permitir imports a partir da raiz do projeto
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# importa engines configuradas
-try:
-    # se seu config está em config/config.py
-    from config import ENGINE, ENGINEDW
-except Exception:
-    # alternativa
-    from config.config import ENGINE, ENGINEDW
+from config import ENGINE, ENGINEDW
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 

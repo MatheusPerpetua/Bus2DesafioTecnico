@@ -10,6 +10,18 @@ def transform_data(emp, prod, vendas):
     Retorna um dict com DataFrames: resumo, total_por_func, ticket_por_prod, vendas_por_categoria, top5
     """
 
+    # dentro transform_data, após limpeza e antes do return
+    quality_metrics = {
+    'vendas_original_rows': len(vendas),
+    'vendas_after_dedup': len(vendas.drop_duplicates()),
+    'vendas_missing_id_empregado': int(vendas['id_empregado'].isna().sum()) if 'id_empregado' in vendas.columns else 0,
+    'vendas_missing_id_produto': int(vendas['id_produto'].isna().sum()) if 'id_produto' in vendas.columns else 0,
+    'vendas_negative_qty': int((vendas['quantidade'] < 0).sum()),
+    'vendas_negative_price': int((vendas['valor_unitario'] < 0).sum())
+}
+    # no return, incluir 'quality_metrics': quality_metrics
+
+
     # Trabalhar em cópias para evitar SettingWithCopyWarning
     emp = emp.copy()
     prod = prod.copy()
