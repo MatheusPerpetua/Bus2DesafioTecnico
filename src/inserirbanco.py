@@ -1,4 +1,3 @@
-# src/inserirbanco.py
 import os
 import logging
 import pandas as pd
@@ -7,11 +6,7 @@ import pandas as pd
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Importa ENGINE do seu config (ajuste caso o caminho seja diferente)
-try:
-    from config import ENGINE  # se seu config.py está na raiz com nome config.py
-except Exception:
-    from config.config import ENGINE  # alternativa se estiver em config/config.py
+from config import ENGINE, ENGINEDW
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
@@ -25,18 +20,21 @@ def insert_dataframe(df, table_name, engine):
         logging.exception(f"Erro ao inserir tabela {table_name}: {e}")
         raise
 
-def save_to_db(resumo_dict, engine=ENGINE):
+def save_to_db(resumo_dict, engine=ENGINEDW):
     """
     Recebe um dicionário com DataFrames (resumo, total_por_func, ticket_por_prod, vendas_por_categoria, top5)
     e grava em tabelas do banco.
     """
     mapping = {
+        'dProdutos': prod,
+        'dFuncionarios': emp,
+        'fVendas': vendas,
         'resumo': 'resumo_vendas',
         'total_por_func': 'total_por_func',
         'ticket_por_prod': 'ticket_por_prod',
         'vendas_por_categoria': 'vendas_por_categoria',
         'top5': 'top5_func'
-    }
+    } 
 
     for key, table in mapping.items():
         if key in resumo_dict and resumo_dict[key] is not None:

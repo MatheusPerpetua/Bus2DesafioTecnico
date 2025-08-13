@@ -27,7 +27,6 @@ def transform_data(emp, prod, vendas):
 
     # Garantir tipos numéricos nas colunas críticas
     vendas['quantidade'] = pd.to_numeric(vendas['quantidade'], errors='coerce').fillna(0)
-    
     vendas['valor_unitario'] = pd.to_numeric(vendas['valor_unitario'], errors='coerce').fillna(0)
     vendas['valor_total'] = pd.to_numeric(vendas['valor_total'], errors='coerce').fillna(0)
 
@@ -92,6 +91,9 @@ def transform_data(emp, prod, vendas):
             pass
 
     return {
+        'dProdutos': prod,
+        'dFuncionarios': emp,
+        'fVendas': vendas,
         'resumo': resumo,
         'total_por_func': total_por_func,
         'ticket_por_prod': ticket_por_prod,

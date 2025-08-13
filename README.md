@@ -4,18 +4,18 @@
 Pipeline ETL local que:
 - Extrai dados dos CSVs (`empregados.csv`, `produtos.csv`, `vendas.csv`);
 - Transforma aplicando regras de negócio (limpeza, merges e KPIs);
-- Gera `resumo-vendas.parquet` (arquivo analítico) e `relatorio-final.pdf` (relatório com gráficos);
+- Gera `resumo-vendas.parquet` (arquivo analítico) e `relatorio-preliminar.pdf` (relatório com gráficos);
 - Carrega tabelas transformadas em um banco MySQL de teste.
 
 ## Estrutura do repositório
 
-Bus2/
+Bus2DesafioTecnico/
 
 ├─ arquivos_teste_dados_bus2/ # CSVs brutos
 
 ├─ config/
 
-│ └─ config.py # Engine SQLAlchemy + pymysql (usa .env)
+│ └─ config.py # Engine SQLAlchemy + pymysql
 
 ├─ outputs/ # arquivos gerados
 
@@ -43,10 +43,17 @@ Bus2/
 
 ## Configuração (.env)
 Crie um arquivo .env na raiz com:
+
 HOST= Seu host
+
 DATABASE=Bus2_analise
+
+DATABASEDW=Bus2_analiseDW
+
 USER_DB= Seu usuário
+
 PASSWORDDB=SuaSenhaSegura
+
 PORTA= Sua porta
 
 ## Como rodar (passo a passo)

@@ -19,12 +19,11 @@ def main():
     resumo = transform_data(emp, prod, vendas)
 
     parquet_path = os.path.join(outputs_dir, 'resumo-vendas.parquet')
-    pdf_path = os.path.join(outputs_dir, 'relatorio-final.pdf')
+    pdf_path = os.path.join(outputs_dir, 'relatorio-preliminar.pdf')
 
     save_parquet(resumo['resumo'], parquet_path)
     build_pdf(resumo, pdf_path)
 
-    # carga no DB
     save_to_db(resumo)
 
     logging.info("Pipeline finalizado com sucesso!")
