@@ -1,64 +1,106 @@
+# src/inserirbanco.py
 import os
 import logging
 import pandas as pd
-
-# ajusta o path caso precise (você já tinha isso)
 import sys
+
+# permitir imports a partir da raiz do projeto
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from config import ENGINE, ENGINEDW
+# importa engines configuradas
+try:
+    # se seu config está em config/config.py
+    from config import ENGINE, ENGINEDW
+except Exception:
+    # alternativa
+    from config.config import ENGINE, ENGINEDW
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-def insert_dataframe(df, table_name, engine):
+
+def insert_dataframe(df: pd.DataFrame, table_name: str, engine):
     """Insere um DataFrame no banco (replace)."""
     logging.info(f"Inserindo {len(df)} linhas na tabela `{table_name}`...")
     try:
-        df.to_sql(table_name, con=engine, if_exists='replace', index=False, method='multi', chunksize=1000)
+        # limpa nomes de colunas para o banco (opcional)
+        df_to_save = df.copy()
+        # não forçar lower se preferir manter nomes originais no raw
+        df_to_save.columns = df_to_save.columns.str.strip()
+        df_to_save.to_sql(table_name, con=engine, if_exists='replace', index=False, method='multi', chunksize=1000)
         logging.info(f"OK: {table_name}")
     except Exception as e:
         logging.exception(f"Erro ao inserir tabela {table_name}: {e}")
         raise
 
-def save_to_db(resumo_dict, engine=ENGINEDW):
+
+def save_raw_csvs_from_folder(raw_folder: str, engine=ENGINE):
     """
-    Recebe um dicionário com DataFrames (resumo, total_por_func, ticket_por_prod, vendas_por_categoria, top5)
-    e grava em tabelas do banco.
+    Lê os CSVs brutos e salva no banco bruto (ENGINE).
+    Nome das tabelas: empregados_raw, produtos_raw, vendas_raw
+    (mantemos sufixo _raw para deixar claro que é a matéria-prima)
     """
+    logging.info("Salvando CSVs brutos no banco raw (ENGINE)...")
     mapping = {
-        'dProdutos': prod,
-        'dFuncionarios': emp,
-        'fVendas': vendas,
+        'empregados.csv': 'empregados_raw',
+        'produtos.csv': 'produtos_raw',
+        'vendas.csv': 'vendas_raw'
+    }
+    for fname, table in mapping.items():
+        csv_path = os.path.join(raw_folder, fname)
+        if not os.path.exists(csv_path):
+            logging.warning(f"Arquivo não encontrado (pulando): {csv_path}")
+            continue
+        try:
+            df = pd.read_csv(csv_path)
+            insert_dataframe(df, table, engine)
+        except Exception as e:
+            logging.exception(f"Erro ao inserir CSV {csv_path} -> {table}: {e}")
+
+
+def save_transformed_to_dw(resumo_dict: dict, engine=ENGINEDW):
+    """
+    Salva os DataFrames transformados no DW.
+    As chaves esperadas em resumo_dict (conforme seu transform.py):
+      - 'dProdutos' -> tabela 'dim_produtos'
+      - 'dFuncionarios' -> tabela 'dim_funcionarios'
+      - 'fVendas' -> tabela 'fact_vendas'
+      - 'resumo' -> tabela 'resumo_vendas' (granular enriquecido)
+      - 'total_por_func' -> tabela 'total_por_func'
+      - 'ticket_por_prod' -> tabela 'ticket_por_prod'
+      - 'vendas_por_categoria' -> 'vendas_por_categoria'
+      - 'top5' -> 'top5_func'
+    """
+    logging.info("Salvando dados transformados no Data Warehouse (ENGINEDW)...")
+    mapping = {
+        'dProdutos': 'dProdutos',
+        'dFuncionarios': 'dFuncionarios',
+        'fVendas': 'fVendas',
         'resumo': 'resumo_vendas',
         'total_por_func': 'total_por_func',
         'ticket_por_prod': 'ticket_por_prod',
         'vendas_por_categoria': 'vendas_por_categoria',
         'top5': 'top5_func'
-    } 
+    }
 
     for key, table in mapping.items():
-        if key in resumo_dict and resumo_dict[key] is not None:
-            df = resumo_dict[key]
-            # garantir tipos básicos e nomes limpos
-            df = df.copy()
-            df.columns = df.columns.str.strip().str.lower()
-            insert_dataframe(df, table, engine)
-        else:
-            logging.info(f"Chave '{key}' não encontrada em resumo_dict — pulando tabela `{table}`.")
-
-# suporte para rodar o script isoladamente: lê CSVs e faz insert (comportamento legado)
-if __name__ == "__main__":
-    logging.info("Executando inserirbanco.py em modo standalone: lendo CSVs de 'arquivos_teste_dados_bus2' e inserindo no DB")
-    table_load_order = ['empregados', 'produtos', 'vendas']
-    for table_name in table_load_order:
-        csv_path = os.path.join(os.path.dirname(__file__), '..', 'arquivos_teste_dados_bus2', f'{table_name}.csv')
-        csv_path = os.path.abspath(csv_path)
-        if os.path.exists(csv_path):
+        if key not in resumo_dict or resumo_dict[key] is None:
+            logging.info(f"Chave '{key}' não encontrada em resumo_dict — pulando `{table}`.")
+            continue
+        df = resumo_dict[key].copy()
+        # normalizar nomes (opcional) para DW: lower_case, sem espaços
+        df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
+        # converter datetimes para formato compatível (se existir coluna 'data')
+        if 'data' in df.columns:
             try:
-                df = pd.read_csv(csv_path)
-                insert_dataframe(df, table_name, ENGINE)
-            except Exception as e:
-                logging.exception(f"Erro ao processar {csv_path}: {e}")
-        else:
-            logging.error(f"Arquivo CSV não encontrado: {csv_path}")
-    logging.info("Fim do processo standalone.")
+                df['data'] = pd.to_datetime(df['data'], errors='coerce')
+            except Exception:
+                pass
+        insert_dataframe(df, table, engine)
+
+
+# execução standalone para facilitar testes locais (opcional)
+if __name__ == "__main__":
+    logging.info("Executando inserirbanco.py em modo standalone (ler CSVs e inserir no DB raw ENGINE).")
+    raw_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'arquivos_teste_dados_bus2'))
+    save_raw_csvs_from_folder(raw_folder, engine=ENGINE)
+    logging.info("Modo standalone finalizado.")
