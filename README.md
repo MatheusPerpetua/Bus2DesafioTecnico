@@ -38,7 +38,7 @@ Bus2DesafioTecnico/
 ## Pré-requisitos
 - Python 3.8+
 - Criar um ambiente virtual
-- MySQL acessível para carga (opcional para validação)
+- MySQL acessível para carga
 - Dependências: `pip install -r requirements/requirements.txt`
 
 ## Configuração (.env)
