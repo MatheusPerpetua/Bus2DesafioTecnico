@@ -1,4 +1,4 @@
-#Desafio Técnico — Bus2
+## Desafio Técnico — Bus2
 
 Visão geral
 Este repositório contém um pipeline ETL local (extração → transformação → carga) construído para o desafio da Bus2. O pipeline lê CSVs brutos, aplica regras de negócio, gera um arquivo analítico (Parquet), produz um relatório em PDF e insere as tabelas transformadas em um banco MySQL/DW.
