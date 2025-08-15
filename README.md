@@ -11,7 +11,7 @@ Limpeza, padronização e agregações (KPIs)
 
 Gerar outputs/resumo-vendas.parquet e outputs/relatorio-preliminar.pdf
 
-Carregar tabelas no MySQL (DB de teste) e no DW (se configurado)
+Carregar tabelas no MySQL (DB de teste) e no DW 
 
 ## Estrutura do repositório
 
