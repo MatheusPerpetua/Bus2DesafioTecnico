@@ -1,11 +1,17 @@
-# Desafio Técnico — Bus2
+#Desafio Técnico — Bus2
 
-## Resumo
-Pipeline ETL local que:
-- Extrai dados dos CSVs (`empregados.csv`, `produtos.csv`, `vendas.csv`);
-- Transforma aplicando regras de negócio (limpeza, merges e KPIs);
-- Gera `resumo-vendas.parquet` (arquivo analítico) e `relatorio-preliminar.pdf` (relatório com gráficos);
-- Carrega tabelas transformadas em um banco MySQL de teste.
+Visão geral
+Este repositório contém um pipeline ETL local (extração → transformação → carga) construído para o desafio da Bus2. O pipeline lê CSVs brutos, aplica regras de negócio, gera um arquivo analítico (Parquet), produz um relatório em PDF e insere as tabelas transformadas em um banco MySQL/DW.
+
+Objetivos cobridos
+
+Ler os CSVs: empregados.csv, produtos.csv, vendas.csv
+
+Limpeza, padronização e agregações (KPIs)
+
+Gerar outputs/resumo-vendas.parquet e outputs/relatorio-preliminar.pdf
+
+Carregar tabelas no MySQL (DB de teste) e no DW (se configurado)
 
 ## Estrutura do repositório
 
@@ -29,17 +35,21 @@ Bus2DesafioTecnico/
 
 │ ├─ report.py # grava parquet e gera PDF
 
-│ ├─ inserirbanco.py # grava DataFrames no MySQL (expondo save_to_db)
+│ ├─ inserirbanco.py # grava DataFrames no MySQL 
 
 │ └─ main.py # orquestrador do pipeline
 
 ├─ README.md
 
 ## Pré-requisitos
-- Python 3.8+
-- Criar um ambiente virtual
-- MySQL acessível para carga
-- Dependências: `pip install -r requirements/requirements.txt`
+
+-Python 3.8+
+
+-Sistema operacional: Linux / Windows (com ajustes)
+
+-MySQL remoto ou local para testar a carga
+
+-Recomendado: ambiente virtual (venv)
 
 ## Configuração (.env)
 Crie um arquivo .env na raiz com:
@@ -63,8 +73,9 @@ PORTA= Sua porta
 ```bash
 
 python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+source venv/bin/activate        # Linux / macOS
+# venv\Scripts\activate         # Windows PowerShell
+pip install -r requirements/requirements.txt
 ```
 3. Execute o arquivo main.py:
 

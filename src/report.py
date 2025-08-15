@@ -8,7 +8,7 @@ from matplotlib.ticker import FuncFormatter
 # --- CONFIGURAÇÕES GLOBAIS DE LAYOUT E ESTILO ---
 # Tamanho da página A4 landscape em polegadas (11.69 x 8.27)
 FIGSIZE = (12, 10) # Ajustado para A4 landscape
-
+FIGSIZE3= (12, 15)
 # Margens da página (proporcional ao tamanho da figura)
 MARGINS = {
     'left': 0.08, 'right': 0.92,  # Aumenta margens laterais
@@ -27,7 +27,7 @@ TEXT_FONT = 10
 LABEL_FONT = 9
 TABLE_FONT = 8
 
-# Cores (paleta mais profissional)
+# Cores 
 COLOR_PRIMARY = '#2E86C1'  # Azul corporativo
 COLOR_SECONDARY = '#6AB04C' # Verde complementar
 COLOR_ACCENT = '#FFC300'    # Amarelo para destaque
@@ -108,7 +108,7 @@ def build_pdf(resumo_dict, output_pdf_path, top_n_employees=10, top_n_products=1
         fig = plt.figure(figsize=FIGSIZE)
         _new_page(fig, title="Relatório de Análise de Vendas", subtitle="Desafio Técnico Bus2")
         
-        fig.text(0.10, 0.80, "Autor: Matheus Vieira Perpetua", fontsize=SUBTITLE_FONT, color=COLOR_TEXT)
+        fig.text(0.10, 0.80, "Matheus Vieira Perpetua", fontsize=SUBTITLE_FONT, color=COLOR_TEXT)
         fig.text(0.10, 0.75, f"Data de Geração: {pd.Timestamp.now().strftime('%d/%m/%Y %H:%M')}", fontsize=TEXT_FONT, color=COLOR_TEXT)
 
         # KPI cards (2x3 grid)
@@ -216,12 +216,12 @@ def build_pdf(resumo_dict, output_pdf_path, top_n_employees=10, top_n_products=1
             vals = df_ticket['ticket_medio'].astype(float).values
             y_pos = np.arange(len(names))
 
-            fig = plt.figure(figsize=FIGSIZE)
+            fig = plt.figure(figsize=FIGSIZE3)
             _new_page(fig, title=f"Top {top_n_products} Produtos por Ticket Médio")
 
             left, bottom, width, height = CONTENT_BOX['full']
-            ax_top = fig.add_axes([left, bottom + 0.35, width, 0.50]) # Gráfico ocupa mais espaço
-            ax_hist = fig.add_axes([left, bottom + 0.08, width, 0.25]) # Histograma abaixo
+            ax_top = fig.add_axes([left, bottom + 0.33, width, 0.50]) # Gráfico ocupa mais espaço
+            ax_hist = fig.add_axes([left, bottom + 0.00, width, 0.25]) # Histograma abaixo
 
             # BARRAS HORIZONTAIS (ticket médio)
             ax_top.barh(y_pos, vals, align='center', color=COLOR_PRIMARY)
@@ -239,7 +239,7 @@ def build_pdf(resumo_dict, output_pdf_path, top_n_employees=10, top_n_products=1
             ax_top.grid(axis='x', linestyle='--', alpha=0.7, color=COLOR_LIGHT_GRAY)
 
             if len(vals) > 0:
-                ax_top.set_xlim(0, max(vals) * 1.15)
+                ax_top.set_xlim(0, max(vals) * 2)
             _annotate_barh(ax_top, y_pos, vals, fmt_func=currency_fmt, inside_threshold=0.12)
             ax_top.set_title(f"Ticket Médio por Produto", fontsize=SUBTITLE_FONT, color=COLOR_TEXT)
 
@@ -264,10 +264,10 @@ def build_pdf(resumo_dict, output_pdf_path, top_n_employees=10, top_n_products=1
 
         # --- PAGE 4: Vendas por categoria (padronizado) ---
         if not vendas_por_categoria.empty:
-            vc = vendas_por_categoria.sort_values('valor_total', ascending=False) # Corrigido para 'valor_total'
+            vc = vendas_por_categoria.sort_values('valor_total', ascending=False) 
             if 'categoria' in vc.columns: # Verifica se a coluna existe
                 vc.rename(columns={'categoria': 'Categoria'}, inplace=True)
-            if 'valor_total' in vc.columns: # Corrigido para 'valor_total'
+            if 'valor_total' in vc.columns: 
                 vc.rename(columns={'valor_total': 'Valor Total'}, inplace=True)
 
             fig = plt.figure(figsize=FIGSIZE)
@@ -309,7 +309,7 @@ def build_pdf(resumo_dict, output_pdf_path, top_n_employees=10, top_n_products=1
             tmp['data'] = pd.to_datetime(tmp['data'], errors='coerce')
             tmp = tmp.dropna(subset=['data'])
             if not tmp.empty:
-                series = tmp.set_index('data').resample('M')['valor_total'].sum() # Corrigido para 'valor_total'
+                series = tmp.set_index('data').resample('M')['valor_total'].sum() 
                 fig = plt.figure(figsize=FIGSIZE)
                 _new_page(fig, title="Evolução Mensal das Vendas")
 
@@ -373,7 +373,7 @@ def build_pdf(resumo_dict, output_pdf_path, top_n_employees=10, top_n_products=1
         # --- PAGE 7: Amostra registros (tabela) ---
         if not resumo.empty:
             sample = resumo.head(12).copy()
-            cols_priority = ['id_venda','data','id_produto','id_empregado','quantidade','valor_unitario','valor_total','nome_emp','nome_prod','categoria'] # Corrigido para 'valor_total'
+            cols_priority = ['id_venda','data','id_produto','id_empregado','quantidade','valor_unitario','valor_total','nome_emp','nome_prod','categoria'] 
             cols = [c for c in cols_priority if c in sample.columns]
             sample = sample[cols]
             
